@@ -40,15 +40,13 @@ module memory_controller_with_scan (
         end
         else begin
             current_state <= next_state;
-            
-            // Capture address when operation starts
             if (current_state == IDLE && start_op) begin
                 op_addr <= addr_in;
             end
         end
     end
 
-    // Data Out Register (Synchronous Capture)
+    // Data Out Register
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             data_out <= 8'b0;
@@ -60,13 +58,11 @@ module memory_controller_with_scan (
 
     assign scan_out = current_state[0];
 
-    // FSM Next State Logic and Output Signals (Combinatorial Block)
+    // FSM Next State Logic
     always @(*)
     begin
         next_state = current_state;
         done = 1'b0;
-        
-        // Reset/Default Output Signals
         mem_ren_wen = 1'b0;
         ram_read_addr = 8'b0;
         ram_write_addr = 8'b0;
@@ -83,21 +79,20 @@ module memory_controller_with_scan (
                 end
             end
             READ_SETUP: begin
-                ram_read_addr = op_addr; // Use stable registered address
+                ram_read_addr = op_addr;
                 next_state = READ_WAIT;
             end
             READ_WAIT: begin
-                // Read data is available and captured in the synchronous block
                 next_state = DONE_STATE;
             end
             WRITE_SETUP: begin
-                ram_write_addr = op_addr; // Use stable registered address
-                ram_data_in = data_in; // Use stable input data
+                ram_write_addr = op_addr; 
+                ram_data_in = data_in;
                 next_state = WRITE_WAIT;
             end
             WRITE_WAIT: begin
-                mem_ren_wen = 1'b1; // Assert write enable for one cycle
-                ram_write_addr = op_addr; // Keep address and data asserted
+                mem_ren_wen = 1'b1; 
+                ram_write_addr = op_addr;
                 ram_data_in = data_in;
                 next_state = DONE_STATE;
             end
