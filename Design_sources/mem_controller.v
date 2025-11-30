@@ -28,7 +28,7 @@ module memory_controller_with_scan (
     reg  [2:0] current_state, next_state;
     reg  [7:0] op_addr;
 
-    // FSM State, Scan Chain, and Address Register (Sequential Block)
+    // Sequential Block
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             current_state <= IDLE;
